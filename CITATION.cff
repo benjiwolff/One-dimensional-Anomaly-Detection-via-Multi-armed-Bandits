@@ -1,8 +1,0 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-authors:
-  - family-names: Wolff
-    given-names: Benjamin
-title: One-dimensional Anomaly Detection via Multi-armed Bandits"
-version: 1.0
-date-released: April 17, 2022
