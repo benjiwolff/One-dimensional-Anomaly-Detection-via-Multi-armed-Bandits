@@ -160,7 +160,7 @@ class Sequential:
         # initial estimate = normal parameter
         est = [self.board.normal_parameter() for _ in range(self.board.size)]
         llr = np.zeros(self.board.size)
-        estimated_states = [False for _ in self.leaf_nodes]
+        estimated_states = [False for _ in self.board.nodes]
         est_anoms = []
         prioritize_anomaly = True
         if not prioritize_anomaly:

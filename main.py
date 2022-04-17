@@ -8,9 +8,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     # required/positional arguments
+    presets = ['NED0.8','NED1.2','EXPLit','EXFCit','BLUCB0.9','BLUCB0.5','LUCB','DSit']
     parser.add_argument('algorithm', type=str,
                             help='algorithm',
-                            choices=Sequential.algorithms
+                            choices=list(Sequential.algorithms.keys())+presets
                             )
 
     # problem parameters
@@ -56,6 +57,34 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.algorithm in presets:
+        args.n_processes = 100
+        args.n_anom = 5
+        args.anomaly_parameter = 10
+        args.iterate = True
+        if args.algorithm == 'NED0.8':
+            args.algorithm = 'NED'
+            args.e = 0.8
+        elif args.algorithm == 'NED1.2':
+            args.algorithm = 'NED'
+            args.e = 1.2
+        elif args.algorithm == 'EXPLit':
+            args.algorithm = 'EXPL'
+        elif args.algorithm == 'EXFCit':
+            args.algorithm = 'EXFC'
+        elif args.algorithm == 'BLUCB0.9':
+            args.bias = 0.9
+        elif args.algorithm == 'BLUCB0.5':
+            args.bias = 0.5
+        elif args.algorithm == 'LUCB':
+            args.bias = -1
+        elif args.algorithm == 'DSit':
+            args.algorithm = 'DS'
+        if 'LUCB' in args.algorithm:
+            args.algorithm = 'BLUCB'
+        if args.algorithm in ['EXFC','BLUCB']:
+            args.e = 0.818
+
 
     base_parameters = {
         'e' : args.e,
@@ -99,56 +128,50 @@ if __name__ == '__main__':
     experiments = ExperimentGroup(base_parameters, settings)
     
     params = {}
-    if 'all' in args.algorithm:
-        algorithms = [a for a in Sequential.algorithm_names if args.algorithm[4:] in a]
-    else: algorithms = [args.algorithm]
             
-    dists = [args.dist]
 
     iterate_over = {}
-    for a in algorithms:
-        params = ArgHierarchy(a)
+    params = ArgHierarchy(args.algorithm)
             
-        for d in dists:
-            params.dist = d
-            if d == 'EXP':
-                pname = 'lambda1'
-                params.lambda0 = 1
-            else:
-                raise NotImplementedError
-            if args.anomaly_parameter is not None:
-                params[pname] = args.anomaly_parameter
-            else:
-                raise NotImplementedError
-            min_pname = 'min_'+pname
-            if args.min_anomaly_parameter is not None:
-                params[min_pname] = args.min_anomaly_parameter
-            else:
-                if d == 'EXP':
-                    params[min_pname] = (params[pname]+params.lambda0)/2
-                else:
-                    raise NotImplementedError
-            iterate_over['k'] = 2**np.arange(1,5)
-            if a == 'BLUCB':
-                iterate_over['c'] = 10**-np.arange(1,6,.5)
-            if a in ['NED','DSFB']:
-                iterate_over['c'] = 200+50*np.arange(8)
-            if a == 'DS':
-                iterate_over['c'] = 10**-np.arange(2,6,.5)
-            if a == 'EXPL':
-                iterate_over['c'] = 200+100*np.arange(8)
-            if a == 'EXFC':
-                iterate_over['c'] = 10**-np.arange(.5,4.5,.5)
-            params.m = args.n_processes
-            params.c = args.sampling_cost
+    params.dist = args.dist
+    if args.dist == 'EXP':
+        pname = 'lambda1'
+        params.lambda0 = 1
+    else:
+        raise NotImplementedError
+    if args.anomaly_parameter is not None:
+        params[pname] = args.anomaly_parameter
+    else:
+        raise NotImplementedError
+    min_pname = 'min_'+pname
+    if args.min_anomaly_parameter is not None:
+        params[min_pname] = args.min_anomaly_parameter
+    else:
+        if args.dist == 'EXP':
+            params[min_pname] = (params[pname]+params.lambda0)/2
+        else:
+            raise NotImplementedError
+    iterate_over['k'] = 2**np.arange(1,5)
+    if args.algorithm == 'BLUCB':
+        iterate_over['c'] = 10**-np.arange(1,6,.5)
+    if args.algorithm in ['NED','DSFB']:
+        iterate_over['c'] = 200+50*np.arange(8)
+    if args.algorithm == 'DS':
+        iterate_over['c'] = 10**-np.arange(2,6,.5)
+    if args.algorithm == 'EXPL':
+        iterate_over['c'] = 200+100*np.arange(8)
+    if args.algorithm == 'EXFC':
+        iterate_over['c'] = 10**-np.arange(.5,4.5,.5)
+    params.m = args.n_processes
+    params.c = args.sampling_cost
 
-            if args.iterate:
-                for i,p in enumerate(iterate_over['c']):
-                    params['c'] = p
-                    print(params.dictionary)
-                    experiments.add_experiment(params)
-            else:
-                experiments.add_experiment(params)
+    if args.iterate:
+        for i,p in enumerate(iterate_over['c']):
+            params['c'] = p
+            print(params.dictionary)
+            experiments.add_experiment(params)
+    else:
+        experiments.add_experiment(params)
 
     # commands
     experiments.run()
