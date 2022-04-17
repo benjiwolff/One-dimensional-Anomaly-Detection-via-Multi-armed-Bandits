@@ -23,14 +23,14 @@ if __name__ == '__main__':
                     help='iterate over different values for c')
     parser.add_argument('-ap','--anomaly_parameter', type=float, default=None,
                     help='anomaly parameter index, higher index -> harder problem')
-    parser.add_argument('-min_ap','--min_anomaly_parameter', type=float, default=None,
-                    help='minium anomaly parameter index, higher index -> harder problem')
     parser.add_argument('-k', '--n_anom', type=int, default=1,
                     help='number of anomalies')
-    parser.add_argument('-lgllr','--lgllr', action='store_true',
-                            help='use LGRLL statistics instead of LALLR (DS only)')
 
     # algorithm arguments
+    parser.add_argument('-min_ap','--min_anomaly_parameter', type=float, default=None,
+                    help='minium anomaly parameter index, higher index -> harder problem')
+    parser.add_argument('-lgllr','--lgllr', action='store_true',
+                            help='use LGRLL statistics instead of LALLR (DS only)')
     parser.add_argument('-c','--sampling_cost', type=float, default=1e-2,
                     help='relative cost of sampling for DS, relative confidence of LUCB and budget of NED')   
     parser.add_argument('-b','--bias', type=float, default=.5,
@@ -103,11 +103,6 @@ if __name__ == '__main__':
         folder = os.path.join(folder,args.folder)
     else:
         folder = os.path.join(folder,args.algorithm)
-        if args.algorithm in ['DS']:
-            if args.lgllr:
-                folder = os.path.join(folder,'lgllr')
-            else:
-                folder = os.path.join(folder,'lallr')
     if not os.path.isdir(folder) and not args.nosave:
         try:
             os.makedirs(folder)

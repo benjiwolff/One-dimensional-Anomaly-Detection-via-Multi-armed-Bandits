@@ -1,8 +1,6 @@
-from scipy.stats import norm, expon, binom, bernoulli, ncx2, chi2
+from scipy.stats import expon, chi2
 import numpy as np
 import random
-from util import ceil_next, exp_mean_cdf, exp_mean_ppf, sample_entropy, permute_2nd_column
-from util import load_float_array, save_1dim_arrays, load_1dim_lists, exp_mean_logcdf
 
 class Board:
     dist_parametertypes = {

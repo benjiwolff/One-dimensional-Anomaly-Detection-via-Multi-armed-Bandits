@@ -1,8 +1,8 @@
 import numpy as np
 from board import Board
-from util import fdr, fwer, kth_lowest, k_lowest
+from util import fwer
 from multiprocessing import Queue
-from scipy.stats import expon, norm, chi2, bernoulli
+from scipy.stats import bernoulli
 import queue, time
 
 def add_registry(cls):
@@ -192,12 +192,12 @@ class Sequential:
                 est_anoms.remove(borderline)
 
             # phase 1
-            if self.lgllr:
-                n_samples = max(self.board.min_samples-self.n[m],1)
-            else:
-                n_samples = 1
             # for proper estimates
-            s = self.sample_update(m, n_samples)
+            n_samples = self.board.min_samples-self.n[m]-1
+            if n_samples > 0:
+                self.sample_update(m, n_samples)
+
+            s = self.sample_update(m, 1)
 
             if not self.lgllr: # takes old estimate
                 logp_denominator = self.board.logp('0',s)

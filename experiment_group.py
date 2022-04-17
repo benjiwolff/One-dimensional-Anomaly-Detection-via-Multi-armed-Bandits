@@ -1,7 +1,6 @@
 from multiprocessing import Process, Queue, Value
-import os, time
+import time
 from experiment import Experiment
-from util import save_1dim_arrays
 import copy, numpy as np
 from arghierarchy import ArgHierarchy
 from util import iprint

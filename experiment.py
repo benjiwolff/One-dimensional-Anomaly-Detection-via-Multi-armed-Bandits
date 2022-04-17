@@ -1,4 +1,4 @@
-import time, numpy as np, os
+import time, os
 from sequential import Sequential
 from board import Board
 from util import get_value_from_filename, save_scalars
